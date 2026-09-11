@@ -10,17 +10,14 @@ import 'codec/euc_kr.dart';
 import 'daily_price_parser.dart';
 import 'dto/naver_dto.dart';
 
-/// Naver endpoint 4종 호출 + 일별 시세 페이지 캐시.
-///
-/// 앱에 인스턴스 하나만 두고 세 화면이 공유합니다. 응답은 항상 `bodyBytes` 로 받아
-/// 인코딩을 직접 결정합니다 — `package:http` 의 `body` 는 모르는 charset 을 latin1 로
-/// 조용히 처리하기 때문입니다.
+// 네이버 API 호출 담당. 앱에서 인스턴스 하나만 만들어 공유.
+// 응답은 bodyBytes 로 받아서 직접 디코딩 (http 패키지 body 는 EUC-KR 을 latin1 로 잘못 읽음)
 class StockRepository {
   StockRepository({http.Client? client}) : _client = client ?? http.Client();
 
   final http.Client _client;
 
-  /// finance.naver.com 은 브라우저 UA 가 없으면 네이버 홈을 돌려줍니다.
+  // 브라우저 UA 없으면 finance.naver.com 이 홈 화면을 돌려줌
   static const Map<String, String> _headers = <String, String>{
     'User-Agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
@@ -28,12 +25,10 @@ class StockRepository {
     'Referer': 'https://finance.naver.com/',
   };
 
-  /// 종목별 일별 시세 캐시. page 번호 → 그 페이지의 행. lastPage 는 첫 응답에서 확정.
+  // 종목코드별 일별 시세 페이지 캐시
   final Map<String, _DailyCache> _daily = <String, _DailyCache>{};
 
-  // ---------------------------------------------------------------- endpoints
-
-  /// 1. 검색 자동완성. 국내 6자리 종목만 남깁니다.
+  // 검색 자동완성. 국내 6자리 종목만 필터
   Future<List<Stock>> search(String query) async {
     final Map<String, dynamic> json = await _getJson(
       Uri.https('ac.stock.naver.com', '/ac', <String, String>{
@@ -51,7 +46,7 @@ class StockRepository {
     ];
   }
 
-  /// 2. 실시간 시세 — 관심 종목 전체를 요청 1번으로. 결과는 symbol 로 색인.
+  // 실시간 시세. 여러 종목을 한 번에 요청, 결과는 종목코드로 맵핑
   Future<Map<String, Quote>> fetchQuotes(Iterable<String> symbols) async {
     if (symbols.isEmpty) return const <String, Quote>{};
     final Map<String, dynamic> json = await _getJson(
@@ -66,7 +61,7 @@ class StockRepository {
     };
   }
 
-  /// 3. 종목 메타데이터 (종목명·거래소명).
+  // 종목명, 거래소명 조회
   Future<Stock> fetchMeta(String symbol) async {
     final Map<String, dynamic> json = await _getJson(
       Uri.https(
@@ -78,12 +73,9 @@ class StockRepository {
     return StockMetaDto.fromJson(json).toStock();
   }
 
-  /// 4. 일별 시세 — [pages] 페이지분(1페이지 = 10거래일)을 최신순으로 돌려줍니다.
-  ///
-  /// 이미 받은 페이지는 재사용하고 부족한 페이지만 순서대로 추가 요청합니다.
-  /// 예) 3개월(6p) 을 본 뒤 1년(25p) 으로 바꾸면 7~25 페이지만 새로 받습니다.
-  /// 종목의 lastPage 를 넘는 페이지는 요청하지 않습니다 — Naver 는 넘는 페이지에
-  /// 마지막 페이지 내용을 그대로 다시 주므로 중복 행이 생깁니다.
+  // 일별 시세. 1페이지 = 10거래일, 최신순.
+  // 이미 받은 페이지는 재사용하고 부족한 페이지만 추가 요청.
+  // lastPage 넘는 페이지는 네이버가 마지막 페이지를 그대로 다시 주기 때문에 요청 안 함.
   Future<List<DailyPrice>> dailyPrices(String symbol, int pages) async {
     final _DailyCache cache = _daily.putIfAbsent(symbol, _DailyCache.new);
 
@@ -109,8 +101,6 @@ class StockRepository {
     );
     return parseDailyPage(eucKr.decode(bytes), requestedPage: page);
   }
-
-  // ------------------------------------------------------------------ helpers
 
   Future<Map<String, dynamic>> _getJson(Uri uri, Encoding encoding) async =>
       jsonDecode(encoding.decode(await _getBytes(uri))) as Map<String, dynamic>;

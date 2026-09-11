@@ -2,16 +2,11 @@ import 'dart:convert';
 
 import 'cp949_table.dart';
 
-/// EUC-KR(CP949) 바이트를 문자열로 디코딩합니다.
-///
-/// Naver `sise_day` HTML과 `realtime` JSON이 `charset=EUC-KR`로 내려오는데
-/// `dart:convert`에는 해당 codec이 없고, pub.dev의 순수 Dart 구현은 null-safety
-/// 이전에 멈춰 있습니다. 플랫폼 채널 플러그인은 `flutter test`에서 쓸 수 없어
-/// Python `codecs`로 뽑은 매핑 표를 소스에 포함하는 방식을 택했습니다.
-/// (표 생성: `tool/gen_cp949_table.py`)
-///
-/// 1바이트(0x00~0x7F)는 ASCII 그대로, 2바이트 조합은 표에서 찾고 매핑이 없으면
-/// U+FFFD로 대체합니다. 디코더만 필요하므로 인코더는 구현하지 않았습니다.
+// EUC-KR(CP949) 디코더
+// 네이버 일별 시세 HTML 과 실시간 JSON 이 EUC-KR 이라 필요.
+// dart:convert 에 없고 pub 패키지들은 null-safety 미지원, 플랫폼 플러그인은 flutter test 에서 못 써서
+// 파이썬으로 뽑은 매핑 표(cp949_table.dart)를 직접 넣음. 디코더만 구현.
+// 0x00~0x7F 는 ASCII, 2바이트는 표에서 찾고 없으면 U+FFFD
 const Encoding eucKr = _EucKrCodec();
 
 class _EucKrCodec extends Encoding {
@@ -25,7 +20,7 @@ class _EucKrCodec extends Encoding {
 
   @override
   Converter<String, List<int>> get encoder =>
-      throw UnsupportedError('EUC-KR 인코딩은 필요하지 않아 구현하지 않았습니다.');
+      throw UnsupportedError('encoder 미구현');
 }
 
 class _EucKrDecoder extends Converter<List<int>, String> {
@@ -60,7 +55,7 @@ class _EucKrDecoder extends Converter<List<int>, String> {
     return out.toString();
   }
 
-  /// trail 바이트 → 표의 열 인덱스. 0x41~0x5A, 0x61~0x7A, 0x81~0xFE 순서.
+  // trail 바이트를 표의 열 인덱스로. 0x41~0x5A, 0x61~0x7A, 0x81~0xFE 순서
   static int? _trailIndex(int b) {
     if (b >= 0x41 && b <= 0x5A) return b - 0x41;
     if (b >= 0x61 && b <= 0x7A) return b - 0x61 + 26;

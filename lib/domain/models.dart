@@ -1,18 +1,14 @@
-/// 종목 식별 정보. 검색 결과·관심 목록·상세 헤더가 공통으로 쓰는 최소 단위입니다.
+// 종목 기본 정보. 검색 결과, 관심 목록, 상세 헤더에서 공통 사용
 class Stock {
   const Stock({required this.symbol, required this.name, required this.market});
 
-  /// 6자리 종목코드 (예: `005930`)
-  final String symbol;
+  final String symbol; // 6자리 종목코드 (005930)
   final String name;
+  final String market; // 코스피 / 코스닥
 
-  /// 거래소명 (예: `코스피`, `코스닥`)
-  final String market;
-
-  /// Naver 가이드가 요구하는 canonical id.
   String get id => 'domestic:$symbol';
 
-  /// `005930 · 코스피`
+  // "005930 · 코스피"
   String get subtitle => '$symbol · $market';
 
   Map<String, Object> toJson() => <String, Object>{
@@ -34,7 +30,7 @@ class Stock {
   int get hashCode => symbol.hashCode;
 }
 
-/// 실시간 시세. 등락·시가총액은 가이드대로 파생값으로 계산합니다.
+// 실시간 시세
 class Quote {
   const Quote({
     required this.symbol,
@@ -58,14 +54,14 @@ class Quote {
 
   int get change => price - prevClose;
 
-  /// 등락률(%). 전일 종가가 0이면(상장 첫날 등) 0으로 둡니다.
+  // 전일 종가 0이면 (상장 첫날 등) 0 처리
   double get changeRate => prevClose == 0 ? 0 : change / prevClose * 100;
 
-  /// 시가총액(원) = 현재가 × 상장 주식 수
+  // 시가총액 = 현재가 x 상장주식수
   int get marketCap => price * listedShares;
 }
 
-/// 일별 시세 한 행. [date]는 `yyyyMMdd`로 정규화된 문자열입니다.
+// 일별 시세 한 행. date 는 yyyyMMdd
 class DailyPrice {
   const DailyPrice({
     required this.date,
@@ -79,16 +75,14 @@ class DailyPrice {
 
   final String date;
   final int close;
-
-  /// 전일비. 부호 포함 (하락이면 음수).
-  final int change;
+  final int change; // 전일비, 하락이면 음수
   final int open;
   final int high;
   final int low;
   final int volume;
 }
 
-/// 관심 목록 정렬 기준. [label]은 헤더 칩과 바텀시트에 그대로 표시됩니다.
+// 관심 목록 정렬 기준
 enum SortKey {
   price('현재가순'),
   changeRate('등락률순'),
@@ -98,7 +92,7 @@ enum SortKey {
   final String label;
 }
 
-/// 상세 화면 기간 탭. [pages]는 일별 시세 표에서 필요한 페이지 수(1페이지 = 10거래일).
+// 상세 화면 기간 탭. pages = 필요한 일별 시세 페이지 수 (1페이지 = 10거래일)
 enum Period {
   month1('1개월', 2),
   month3('3개월', 6),

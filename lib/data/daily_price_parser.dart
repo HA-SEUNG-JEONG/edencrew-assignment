@@ -3,25 +3,23 @@ import 'package:html/parser.dart' as html;
 
 import '../domain/models.dart';
 
-/// `sise_day.naver` 한 페이지의 파싱 결과.
+// sise_day.naver 한 페이지 파싱 결과
 class DailyPage {
   const DailyPage({required this.rows, required this.lastPage});
 
-  /// 최신 날짜가 먼저 오는 순서(Naver 표 순서 그대로). 한 페이지 최대 10행.
+  // 최신 날짜부터. 한 페이지 최대 10행
   final List<DailyPrice> rows;
 
-  /// 이 종목의 마지막 페이지 번호. 이 값보다 큰 page 를 요청하면 Naver 는
-  /// 마지막 페이지를 그대로 다시 돌려주므로(빈 응답 아님) 반드시 상한으로 써야 합니다.
+  // 페이지 네비게이션에서 읽은 마지막 페이지 번호
   final int lastPage;
 }
 
 final RegExp _date = RegExp(r'^\d{4}\.\d{2}\.\d{2}$');
 final RegExp _pageParam = RegExp(r'page=(\d+)');
 
-/// 이미 EUC-KR 디코딩이 끝난 HTML 문자열을 받습니다.
-///
-/// 표 컬럼 순서: 날짜, 종가, 전일비, 시가, 고가, 저가, 거래량.
-/// [requestedPage]는 페이지 네비게이션이 전혀 없을 때(미상장 코드 등) lastPage 대체값입니다.
+// EUC-KR 디코딩된 HTML 문자열을 받음
+// 컬럼 순서: 날짜, 종가, 전일비, 시가, 고가, 저가, 거래량
+// requestedPage 는 네비게이션이 없을 때 lastPage 기본값
 DailyPage parseDailyPage(String htmlText, {required int requestedPage}) {
   final Document doc = html.parse(htmlText);
 
@@ -30,7 +28,7 @@ DailyPage parseDailyPage(String htmlText, {required int requestedPage}) {
     final List<Element> tds = tr.querySelectorAll('td');
     if (tds.length != 7) continue;
     final String date = tds[0].text.trim();
-    if (!_date.hasMatch(date)) continue; // 헤더·구분선·빈 행
+    if (!_date.hasMatch(date)) continue; // 헤더, 구분선, 빈 행 건너뜀
 
     rows.add(
       DailyPrice(
@@ -45,6 +43,7 @@ DailyPage parseDailyPage(String htmlText, {required int requestedPage}) {
     );
   }
 
+  // 네비게이션 링크 중 가장 큰 page 값 = 마지막 페이지
   int lastPage = requestedPage;
   for (final Element a in doc.querySelectorAll('table.Nnavi a')) {
     final Match? m = _pageParam.firstMatch(a.attributes['href'] ?? '');
@@ -59,7 +58,7 @@ DailyPage parseDailyPage(String htmlText, {required int requestedPage}) {
 int _num(Element td) =>
     int.tryParse(td.text.replaceAll(RegExp(r'[^\d]'), '')) ?? 0;
 
-/// 전일비 칸. 부호는 숫자에 없고 `em.bu_pup`(상승) / `bu_pdn`(하락) / `bu_pn`(보합) 클래스로만 구분됩니다.
+// 전일비 부호는 숫자에 없고 em 클래스로 구분 (bu_pup 상승 / bu_pdn 하락 / bu_pn 보합)
 int _signedChange(Element td) {
   final int abs = _num(td);
   final Element? em = td.querySelector('em');

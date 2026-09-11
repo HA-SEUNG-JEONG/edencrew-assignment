@@ -1,6 +1,6 @@
 import '../../domain/models.dart';
 
-/// `GET ac.stock.naver.com/ac` 의 `items[]` 한 건.
+// 검색 자동완성 응답 items[] 한 건
 class AcItemDto {
   const AcItemDto({
     required this.code,
@@ -21,26 +21,22 @@ class AcItemDto {
   final String code;
   final String name;
 
-  /// 거래소명 (`코스피`, `코스닥`, `나스닥 증권거래소` 등)
-  final String typeName;
+  final String typeName; // 거래소명 (코스피, 코스닥 ...)
   final String nationCode;
 
-  /// `stock` / `ipo` / `index` / `marketindicator`
-  final String category;
+  final String category; // stock / ipo / index / marketindicator
 
   static final RegExp _sixDigits = RegExp(r'^\d{6}$');
 
-  /// 국내 주식 + 6자리 종목코드만 통과. `A495910` 같은 IPO 예정 코드, 해외 종목 제외.
+  // 국내 주식 + 6자리 코드만. 해외 종목, IPO 예정 코드(A495910 같은 것) 제외
   bool get isDomesticStock =>
       category == 'stock' && nationCode == 'KOR' && _sixDigits.hasMatch(code);
 
   Stock toStock() => Stock(symbol: code, name: name, market: typeName);
 }
 
-/// `GET polling.finance.naver.com/api/realtime` 의 `result.areas[].datas[]` 한 건.
-///
-/// 장 전·거래정지 등으로 값이 비어 올 수 있어 숫자 필드는 모두 nullable 로 받고
-/// 모델 변환 시 0 으로 채웁니다.
+// 실시간 시세 응답 result.areas[].datas[] 한 건
+// 장 시작 전이나 거래정지면 숫자가 비어서 오므로 nullable 로 받고 변환할 때 0 처리
 class RealtimeItemDto {
   const RealtimeItemDto({
     required this.cd,
@@ -65,7 +61,7 @@ class RealtimeItemDto {
         countOfListedStock: _int(json['countOfListedStock']),
       );
 
-  /// 응답 전체에서 종목 목록만 꺼냅니다. 순서는 요청 순서와 무관하므로 호출측에서 `cd`로 색인.
+  // 응답에서 종목 목록만 추출. 순서가 요청 순서와 다를 수 있어서 cd 로 찾아야 함
   static List<RealtimeItemDto> listFromResponse(Map<String, dynamic> json) {
     final List<dynamic> areas =
         (json['result'] as Map<String, dynamic>?)?['areas'] as List<dynamic>? ??
@@ -102,7 +98,7 @@ class RealtimeItemDto {
   static int? _int(Object? v) => v is num ? v.toInt() : null;
 }
 
-/// `GET stock.naver.com/api/securityFe/api/fchart/domestic/stock/{symbol}`
+// 종목 메타 응답 (fchart/domestic/stock/{symbol})
 class StockMetaDto {
   const StockMetaDto({
     required this.symbolCode,

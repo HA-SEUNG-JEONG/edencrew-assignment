@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-/// 요청된 URL 을 기록하고 mock 파일을 돌려주는 가짜 서버.
+// 요청 URL 기록하고 mock 파일 돌려주는 가짜 클라이언트
 class _FakeNaver {
   final List<Uri> requests = <Uri>[];
 
