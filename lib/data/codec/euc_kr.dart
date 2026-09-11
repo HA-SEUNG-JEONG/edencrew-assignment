@@ -12,7 +12,7 @@ import 'cp949_table.dart';
 ///
 /// 1바이트(0x00~0x7F)는 ASCII 그대로, 2바이트 조합은 표에서 찾고 매핑이 없으면
 /// U+FFFD로 대체합니다. 디코더만 필요하므로 인코더는 구현하지 않았습니다.
-const Codec<String, List<int>> eucKr = _EucKrCodec();
+const Encoding eucKr = _EucKrCodec();
 
 class _EucKrCodec extends Encoding {
   const _EucKrCodec();
@@ -44,8 +44,9 @@ class _EucKrDecoder extends Converter<List<int>, String> {
         i += 1;
         continue;
       }
-      final int? trailIndex =
-          i + 1 < input.length ? _trailIndex(input[i + 1]) : null;
+      final int? trailIndex = i + 1 < input.length
+          ? _trailIndex(input[i + 1])
+          : null;
       if (lead < 0x81 || lead > 0xFE || trailIndex == null) {
         out.write('�');
         i += 1;

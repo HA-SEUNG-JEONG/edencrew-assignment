@@ -6,7 +6,16 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('EUC-KR 바이트를 한글로 디코딩한다', () {
     // '삼성전자' EUC-KR: BB EF BC BA C0 FC C0 DA
-    const List<int> bytes = <int>[0xBB, 0xEF, 0xBC, 0xBA, 0xC0, 0xFC, 0xC0, 0xDA];
+    const List<int> bytes = <int>[
+      0xBB,
+      0xEF,
+      0xBC,
+      0xBA,
+      0xC0,
+      0xFC,
+      0xC0,
+      0xDA,
+    ];
     expect(eucKr.decode(bytes), '삼성전자');
   });
 
