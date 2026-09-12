@@ -4,6 +4,7 @@ import '../app_state.dart';
 import '../domain/format.dart';
 import '../domain/models.dart';
 import '../theme/theme.dart';
+import 'candle_chart.dart';
 import 'common.dart';
 
 // 종목상세. 셸 위에 push 되는 라우트라 자체 Scaffold 를 갖는다.
@@ -18,7 +19,7 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  final Period _period = Period.month1;
+  Period _period = Period.month1;
   List<DailyPrice> _prices = <DailyPrice>[];
   bool _loading = true;
   bool _started = false;
@@ -33,6 +34,13 @@ class _DetailScreenState extends State<DetailScreen> {
     // 관심 목록에 없는 종목으로 들어오면 시세가 아직 없다
     state.fetchQuote(widget.stock.symbol);
     _load(state);
+  }
+
+  void _selectPeriod(Period period) {
+    if (period == _period) return;
+    setState(() => _period = period);
+    // 이미 받은 페이지는 저장소가 캐시하고 있어 되돌아오면 즉시 그려진다
+    _load(context.appState);
   }
 
   Future<void> _load(AppState state) async {
@@ -71,6 +79,20 @@ class _DetailScreenState extends State<DetailScreen> {
               children: <Widget>[
                 _DetailHeader(stock: widget.stock, state: state),
                 _PriceBlock(quote: quote),
+                _PeriodTabs(selected: _period, onSelect: _selectPeriod),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.dimens.space4,
+                    vertical: context.dimens.space5,
+                  ),
+                  // 로딩 중에도 높이를 유지해 아래 요소가 튀지 않게 한다
+                  child: _loading
+                      ? const SizedBox(
+                          height: 152,
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      : CandleChart(prices: _prices),
+                ),
                 _SummaryGrid(quote: quote),
                 _DailyHeader(loading: _loading),
               ],
@@ -465,6 +487,54 @@ class DailyTableRow extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _PeriodTabs extends StatelessWidget {
+  const _PeriodTabs({required this.selected, required this.onSelect});
+
+  final Period selected;
+  final ValueChanged<Period> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppColors colors = context.colors;
+    final AppDimens dimens = context.dimens;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: dimens.space4),
+      child: Row(
+        children: <Widget>[
+          for (final Period period in Period.values)
+            Expanded(
+              child: InkWell(
+                borderRadius: BorderRadius.circular(dimens.radiusMd),
+                onTap: () => onSelect(period),
+                child: Container(
+                  height: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: period == selected ? colors.accentBg : null,
+                    borderRadius: BorderRadius.circular(dimens.radiusMd),
+                  ),
+                  child: Text(
+                    period.label,
+                    style: TextStyle(
+                      color: period == selected
+                          ? colors.accentDefault
+                          : colors.textSecondary,
+                      fontSize: 13,
+                      fontWeight: period == selected
+                          ? AppTypography.medium
+                          : AppTypography.regular,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
