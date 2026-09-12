@@ -343,11 +343,7 @@ class _SortSheet extends StatelessWidget {
                       ),
                       const Spacer(),
                       if (key == state.sortKey)
-                        Icon(
-                          Icons.check,
-                          size: 24,
-                          color: colors.textPrimary,
-                        ),
+                        Icon(Icons.check, size: 24, color: colors.textPrimary),
                     ],
                   ),
                 ),

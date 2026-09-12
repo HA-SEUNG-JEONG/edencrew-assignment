@@ -52,7 +52,9 @@ void main() {
   testWidgets('정렬 기준을 바꾸면 목록 순서와 헤더 칩이 함께 바뀐다', (WidgetTester tester) async {
     // 시세 mock 은 005930(-4.37%) 과 000660(-4.10%) 두 종목만 응답한다.
     // 나머지 세 종목은 스켈레톤으로 남아 현재가순 / 등락률순 모두 아래로 밀린다
-    await tester.pumpWidget(EdencrewAssignmentApp(repository: mockRepository()));
+    await tester.pumpWidget(
+      EdencrewAssignmentApp(repository: mockRepository()),
+    );
     await tester.pumpAndSettle();
 
     double rowTop(String name) => tester

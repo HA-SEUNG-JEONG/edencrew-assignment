@@ -99,7 +99,9 @@ class AppState extends ChangeNotifier {
     final List<Stock> list = List<Stock>.of(_favorites);
     if (_sortKey == SortKey.name) {
       // 이름은 시세 없이도 알고 있어서 전부 정렬된다
-      list.sort((Stock a, Stock b) => _nameKey(a.name).compareTo(_nameKey(b.name)));
+      list.sort(
+        (Stock a, Stock b) => _nameKey(a.name).compareTo(_nameKey(b.name)),
+      );
       return list;
     }
     // 시세 없는 행에 0을 가정하면 하락 종목보다 위로 올라간다. 비교에서 빼고 맨 아래로
