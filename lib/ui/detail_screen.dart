@@ -336,7 +336,7 @@ class _SummaryCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: colors.textPrimary,
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: AppTypography.medium,
                 ),
               ),

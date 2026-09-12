@@ -191,7 +191,7 @@ class _WatchRow extends StatelessWidget {
                       formatNumber(quote.price),
                       style: TextStyle(
                         color: colors.textPrimary,
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: AppTypography.bold,
                       ),
                     ),
