@@ -161,8 +161,9 @@ class _SearchFieldState extends State<_SearchField> {
         dimens.space3,
       ),
       child: Container(
-        // 높이는 시안 실측 세로 패딩 10이 정한다. 고정 높이를 주지 않는다
-        padding: EdgeInsets.symmetric(horizontal: dimens.space3, vertical: 10),
+        // 시안 실측 40.4. 세로 패딩 10만 주면 글꼴 줄 높이 때문에 45가 된다
+        height: 40,
+        padding: EdgeInsets.symmetric(horizontal: dimens.space3),
         decoration: BoxDecoration(
           color: colors.surfaceSunken,
           borderRadius: BorderRadius.circular(dimens.radiusMd),
@@ -191,7 +192,7 @@ class _SearchFieldState extends State<_SearchField> {
                   hintStyle: TextStyle(
                     color: colors.textTertiary,
                     fontSize: 15,
-                    fontWeight: AppTypography.regular,
+                    fontWeight: AppTypography.medium,
                   ),
                 ),
                 onChanged: (String value) {
