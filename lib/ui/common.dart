@@ -178,14 +178,14 @@ void showFavoriteToast(BuildContext context, bool added) {
   messenger.showSnackBar(
     SnackBar(
       behavior: SnackBarBehavior.floating,
-      // 하단 탭 위로 12 띄운다
+      // 하단 탭 위로 24 띄운다
       margin: EdgeInsets.fromLTRB(
         dimens.space4,
         0,
         dimens.space4,
-        dimens.space3,
+        dimens.space6,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 17),
+      padding: EdgeInsets.symmetric(horizontal: dimens.space4),
       backgroundColor: colors.surfaceOverlay,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(dimens.radiusLg),
@@ -198,16 +198,17 @@ void showFavoriteToast(BuildContext context, bool added) {
           children: <Widget>[
             Icon(
               added ? Icons.star : Icons.star_border,
-              size: dimens.iconSm,
+              // 시안 실측 18. 대응하는 토큰이 없다
+              size: 18,
               color: added ? colors.favoriteActive : colors.textSecondary,
             ),
-            SizedBox(width: dimens.space2 + 1),
+            SizedBox(width: dimens.space2),
             Text(
               added ? '관심이 등록되었습니다' : '관심이 해제되었습니다',
               style: TextStyle(
                 color: colors.textPrimary,
                 fontSize: 13,
-                fontWeight: AppTypography.regular,
+                fontWeight: AppTypography.bold,
               ),
             ),
           ],
