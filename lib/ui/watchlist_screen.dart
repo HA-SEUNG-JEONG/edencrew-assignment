@@ -42,13 +42,29 @@ class WatchlistScreen extends StatelessWidget {
         onAction: state.refreshQuotes,
       );
     }
-    return ListView.builder(
-      // 마지막 행 아래에도 구분선이 있어 separated 대신 행이 직접 그린다
-      itemCount: favorites.length,
-      itemBuilder: (BuildContext context, int index) {
-        final Stock stock = favorites[index];
-        return _WatchRow(stock: stock, quote: state.quoteOf(stock.symbol));
-      },
+    return RefreshIndicator(
+      onRefresh: state.refreshQuotes,
+      child: ListView.builder(
+        // 목록이 화면을 못 채워도 당겨서 새로고침이 되게 한다
+        physics: const AlwaysScrollableScrollPhysics(),
+        // 마지막 행 아래에도 구분선이 있어 separated 대신 행이 직접 그린다
+        itemCount: favorites.length,
+        itemBuilder: (BuildContext _, int index) {
+          final Stock stock = favorites[index];
+          return Dismissible(
+            // 인덱스를 키로 쓰면 정렬이 바뀔 때 엉뚱한 행이 사라진다
+            key: ValueKey<String>(stock.symbol),
+            direction: DismissDirection.endToStart,
+            background: const _DeleteBackground(),
+            onDismissed: (DismissDirection _) {
+              state.removeFavorite(stock.symbol);
+              // 행은 이미 트리에서 빠져 셸 context 로 띄운다
+              showFavoriteToast(context, false);
+            },
+            child: _WatchRow(stock: stock, quote: state.quoteOf(stock.symbol)),
+          );
+        },
+      ),
     );
   }
 }
@@ -192,6 +208,27 @@ class _WatchRow extends StatelessWidget {
                   ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+// 스와이프 삭제는 시안에 없다. 행 높이·구분선을 그대로 두고 경고색 아이콘만 드러낸다
+class _DeleteBackground extends StatelessWidget {
+  const _DeleteBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    final AppDimens dimens = context.dimens;
+
+    return Container(
+      alignment: Alignment.centerRight,
+      color: context.colors.surfaceSunken,
+      padding: EdgeInsets.only(right: dimens.space4),
+      child: Icon(
+        Icons.delete_outline,
+        size: dimens.iconMd,
+        color: context.colors.feedbackWarning,
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
@@ -20,11 +22,25 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Stock> _results = <Stock>[];
   bool _loading = false;
   bool _failed = false;
+  Timer? _debounce;
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  // 한 글자마다 요청하면 '삼성전자' 네 글자에 네 번 나간다
+  void _searchDebounced(String query) {
+    _debounce?.cancel();
+    // 지우기·전송은 기다릴 이유가 없다
+    if (query.isEmpty) {
+      _search(query);
+      return;
+    }
+    setState(() => _failed = false);
+    _debounce = Timer(const Duration(milliseconds: 300), () => _search(query));
   }
 
   Future<void> _search(String query) async {
@@ -60,7 +76,11 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        _SearchField(controller: _controller, onChanged: _search),
+        _SearchField(
+          controller: _controller,
+          onChanged: _searchDebounced,
+          onSubmitted: _search,
+        ),
         Expanded(child: _body(context)),
       ],
     );
@@ -75,7 +95,12 @@ class _SearchScreenState extends State<SearchScreen> {
         description: '종목명 또는 종목코드 6자리로\n검색하실 수 있습니다.',
       );
     }
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    // 디바운스 대기 중에는 결과가 확정되지 않았다.
+    // 보여줄 이전 결과가 있으면 그대로 두고, 없을 때만 스피너로 채운다
+    final bool pending = _loading || (_debounce?.isActive ?? false);
+    if (pending && _results.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
     if (_failed) {
       return EmptyState(
         icon: Icons.cloud_off,
@@ -85,7 +110,7 @@ class _SearchScreenState extends State<SearchScreen> {
         onAction: () => _search(query),
       );
     }
-    if (_results.isEmpty) {
+    if (_results.isEmpty && !pending) {
       return EmptyState(
         icon: Icons.search_off,
         title: '검색 결과가 없습니다',
@@ -106,10 +131,17 @@ class _SearchScreenState extends State<SearchScreen> {
 }
 
 class _SearchField extends StatefulWidget {
-  const _SearchField({required this.controller, required this.onChanged});
+  const _SearchField({
+    required this.controller,
+    required this.onChanged,
+    required this.onSubmitted,
+  });
 
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
+
+  // 전송은 디바운스를 건너뛴다
+  final ValueChanged<String> onSubmitted;
 
   @override
   State<_SearchField> createState() => _SearchFieldState();
@@ -160,7 +192,7 @@ class _SearchFieldState extends State<_SearchField> {
                   setState(() {}); // 지우기 버튼 상태
                   widget.onChanged(value.trim());
                 },
-                onSubmitted: (String value) => widget.onChanged(value.trim()),
+                onSubmitted: (String value) => widget.onSubmitted(value.trim()),
               ),
             ),
             SizedBox(width: dimens.space2),
