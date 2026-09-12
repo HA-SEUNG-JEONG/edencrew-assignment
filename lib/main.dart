@@ -1,87 +1,173 @@
 import 'package:flutter/material.dart';
 
+import 'app_state.dart';
+import 'data/stock_repository.dart';
 import 'theme/theme.dart';
+import 'ui/search_screen.dart';
+import 'ui/watchlist_screen.dart';
 
 void main() {
   runApp(const EdencrewAssignmentApp());
 }
 
-class EdencrewAssignmentApp extends StatelessWidget {
-  const EdencrewAssignmentApp({super.key});
+class EdencrewAssignmentApp extends StatefulWidget {
+  const EdencrewAssignmentApp({super.key, this.repository});
+
+  // 테스트에서 네트워크를 끊기 위한 주입구
+  final StockRepository? repository;
+
+  @override
+  State<EdencrewAssignmentApp> createState() => _EdencrewAssignmentAppState();
+}
+
+class _EdencrewAssignmentAppState extends State<EdencrewAssignmentApp> {
+  late final AppState _state = AppState(widget.repository ?? StockRepository());
+
+  @override
+  void initState() {
+    super.initState();
+    // 필드 초기화 cascade 는 Future 를 버리므로 여기서 호출한다
+    _state.refreshQuotes();
+  }
+
+  @override
+  void dispose() {
+    _state.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '이든크루 평가 과제',
-      theme: AppTheme.dark,
-      home: const StartHereScreen(),
+    return AppScope(
+      state: _state,
+      child: MaterialApp(
+        title: '이든크루 평가 과제',
+        theme: AppTheme.dark,
+        home: const _HomeShell(),
+      ),
     );
   }
 }
 
-/// 과제 시작점입니다. 이 화면은 지우고 직접 구현한 화면으로 바꿔 주세요.
-///
-/// 디자인 토큰을 어떻게 꺼내 쓰는지 보여주는 예시이기도 합니다.
-class StartHereScreen extends StatelessWidget {
-  const StartHereScreen({super.key});
+// 앱에서 유일한 Scaffold. 화면마다 두면 ScaffoldMessenger 가 토스트를 중복으로 띄운다
+class _HomeShell extends StatefulWidget {
+  const _HomeShell();
+
+  @override
+  State<_HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends State<_HomeShell> {
+  int _index = 0;
+
+  void _select(int index) {
+    // 검색 탭을 벗어나도 키보드가 남는다
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => _index = index);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        // 탭을 오가도 검색어와 스크롤 위치를 잃지 않는다
+        child: IndexedStack(
+          index: _index,
+          children: const <Widget>[WatchlistScreen(), SearchScreen()],
+        ),
+      ),
+      // body 안에 넣으면 floating 토스트가 탭을 덮는다
+      bottomNavigationBar: _BottomNav(index: _index, onSelect: _select),
+    );
+  }
+}
+
+class _BottomNav extends StatelessWidget {
+  const _BottomNav({required this.index, required this.onSelect});
+
+  final int index;
+  final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
     final AppColors colors = context.colors;
     final AppDimens dimens = context.dimens;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(dimens.space5),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                '이든크루 평가 과제',
-                style: TextStyle(
-                  color: colors.textPrimary,
-                  fontSize: 24,
-                  fontWeight: AppTypography.bold,
-                ),
-              ),
-              SizedBox(height: dimens.space2),
-              Text(
-                'README.md를 먼저 읽고, 이 화면부터 교체해 주세요.\n'
-                '색과 간격은 lib/theme의 토큰을 통해서만 사용해 주세요.',
-                style: TextStyle(
-                  color: colors.textSecondary,
-                  fontSize: 14,
-                  fontWeight: AppTypography.regular,
-                  height: 1.5,
-                ),
-              ),
-              SizedBox(height: dimens.space5),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: dimens.space3,
-                  vertical: dimens.space2,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.accentBg,
-                  borderRadius: BorderRadius.circular(dimens.radiusMd),
-                  border: Border.all(
-                    color: colors.borderSubtle,
-                    width: dimens.borderHairline,
+    return Container(
+      color: colors.surfaceRaised,
+      // Scaffold 는 커스텀 bottomNavigationBar 에 안전영역 패딩을 넣어주지 않는다
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Divider(
+              height: dimens.borderHairline,
+              thickness: dimens.borderHairline,
+              color: colors.borderSubtle,
+            ),
+            SizedBox(
+              height: dimens.tabBarHeight,
+              child: Row(
+                children: <Widget>[
+                  _NavItem(
+                    icon: Icons.star_border,
+                    label: '관심',
+                    selected: index == 0,
+                    onTap: () => onSelect(0),
                   ),
-                ),
-                child: Text(
-                  'context.colors / context.dimens',
-                  style: TextStyle(
-                    color: colors.accentDefault,
-                    fontSize: 13,
-                    fontWeight: AppTypography.medium,
+                  _NavItem(
+                    icon: Icons.search,
+                    label: '검색',
+                    selected: index == 1,
+                    onTap: () => onSelect(1),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppColors colors = context.colors;
+    final Color color = selected ? colors.navActive : colors.navInactive;
+
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(icon, size: context.dimens.iconMd, color: color),
+            SizedBox(height: context.dimens.space1),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: AppTypography.regular,
+              ),
+            ),
+          ],
         ),
       ),
     );
