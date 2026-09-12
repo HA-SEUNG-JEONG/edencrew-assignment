@@ -4,6 +4,7 @@ import '../app_state.dart';
 import '../domain/models.dart';
 import '../theme/theme.dart';
 import 'common.dart';
+import 'detail_screen.dart';
 
 // 검색 화면. 셸이 Scaffold 를 갖고 있어 여기서는 본문만 그린다.
 // 검색어·결과·로딩은 이 화면 밖에서 쓸 일이 없어 전역 상태로 올리지 않는다
@@ -195,55 +196,65 @@ class _ResultRow extends StatelessWidget {
     final AppColors colors = context.colors;
     final AppDimens dimens = context.dimens;
 
-    return Container(
-      height: 60,
-      // 별 아이콘이 자체 여백을 갖고 있어 우측 패딩은 그만큼 뺀다
-      padding: EdgeInsets.only(left: dimens.space4, right: dimens.space2),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: colors.borderSubtle,
-            width: dimens.borderHairline,
-          ),
+    return InkWell(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext _) => DetailScreen(stock: stock),
         ),
       ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text.rich(
-                  TextSpan(children: highlightSpans(stock.name, query, colors)),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: colors.textPrimary,
-                    fontSize: 16,
-                    fontWeight: AppTypography.medium,
-                  ),
-                ),
-                SizedBox(height: dimens.space1),
-                Text(
-                  stock.subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: colors.textTertiary,
-                    fontSize: 13,
-                    fontWeight: AppTypography.regular,
-                  ),
-                ),
-              ],
+      child: Container(
+        height: 60,
+        // 별 아이콘이 자체 여백을 갖고 있어 우측 패딩은 그만큼 뺀다
+        padding: EdgeInsets.only(left: dimens.space4, right: dimens.space2),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: colors.borderSubtle,
+              width: dimens.borderHairline,
             ),
           ),
-          StarButton(
-            active: state.isFavorite(stock.symbol),
-            onTap: () =>
-                showFavoriteToast(context, state.toggleFavorite(stock)),
-          ),
-        ],
+        ),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text.rich(
+                    TextSpan(
+                      children: highlightSpans(stock.name, query, colors),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontSize: 16,
+                      fontWeight: AppTypography.medium,
+                    ),
+                  ),
+                  SizedBox(height: dimens.space1),
+                  Text(
+                    stock.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: colors.textTertiary,
+                      fontSize: 13,
+                      fontWeight: AppTypography.regular,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            StarButton(
+              active: state.isFavorite(stock.symbol),
+              onTap: () =>
+                  showFavoriteToast(context, state.toggleFavorite(stock)),
+            ),
+          ],
+        ),
       ),
     );
   }
