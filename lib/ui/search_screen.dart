@@ -175,7 +175,7 @@ class _SearchFieldState extends State<_SearchField> {
                 textInputAction: TextInputAction.search,
                 style: TextStyle(
                   color: colors.textPrimary,
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: AppTypography.regular,
                 ),
                 decoration: InputDecoration(
@@ -184,7 +184,7 @@ class _SearchFieldState extends State<_SearchField> {
                   hintText: '종목명 또는 종목코드',
                   hintStyle: TextStyle(
                     color: colors.textTertiary,
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: AppTypography.regular,
                   ),
                 ),

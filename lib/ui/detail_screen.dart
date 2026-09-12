@@ -524,7 +524,7 @@ class _PeriodTabs extends StatelessWidget {
                       color: period == selected
                           ? colors.accentDefault
                           : colors.textSecondary,
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: period == selected
                           ? AppTypography.medium
                           : AppTypography.regular,
