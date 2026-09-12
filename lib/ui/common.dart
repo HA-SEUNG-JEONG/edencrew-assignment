@@ -144,7 +144,7 @@ List<TextSpan> highlightSpans(String name, String query, AppColors colors) {
   final String haystack = name.toLowerCase();
   final List<TextSpan> spans = <TextSpan>[];
   int cursor = 0;
-  for (int at = haystack.indexOf(needle); at >= 0; ) {
+  for (int at = haystack.indexOf(needle); at >= 0;) {
     if (at > cursor) spans.add(TextSpan(text: name.substring(cursor, at)));
     spans.add(
       TextSpan(
@@ -157,4 +157,54 @@ List<TextSpan> highlightSpans(String name, String query, AppColors colors) {
   }
   if (cursor < name.length) spans.add(TextSpan(text: name.substring(cursor)));
   return spans;
+}
+
+// 관심 등록·해제 결과 토스트.
+// 연속 토글에서 지난 토스트가 줄 서면 현재 상태와 어긋나므로 먼저 비운다
+void showFavoriteToast(BuildContext context, bool added) {
+  final AppColors colors = context.colors;
+  final AppDimens dimens = context.dimens;
+  final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+
+  messenger.clearSnackBars();
+  messenger.showSnackBar(
+    SnackBar(
+      behavior: SnackBarBehavior.floating,
+      // 하단 탭 위로 12 띄운다
+      margin: EdgeInsets.fromLTRB(
+        dimens.space4,
+        0,
+        dimens.space4,
+        dimens.space3,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 17),
+      backgroundColor: colors.surfaceOverlay,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(dimens.radiusLg),
+      ),
+      duration: const Duration(seconds: 2),
+      dismissDirection: DismissDirection.down,
+      content: SizedBox(
+        height: 46,
+        child: Row(
+          children: <Widget>[
+            Icon(
+              added ? Icons.star : Icons.star_border,
+              size: dimens.iconSm,
+              color: added ? colors.favoriteActive : colors.textSecondary,
+            ),
+            SizedBox(width: dimens.space2 + 1),
+            Text(
+              added ? '관심이 등록되었습니다' : '관심이 해제되었습니다',
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontSize: 13,
+                fontWeight: AppTypography.regular,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }

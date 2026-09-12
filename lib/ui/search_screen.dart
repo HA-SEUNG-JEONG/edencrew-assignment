@@ -89,8 +89,7 @@ class _SearchScreenState extends State<SearchScreen> {
         icon: Icons.search_off,
         title: '검색 결과가 없습니다',
         // 긴 검색어가 안내 문구를 밀어내지 않게 잘라서 넣는다
-        description:
-            "'${_shorten(query)}'와\n일치하는 검색 결과를 찾지 못했습니다.",
+        description: "'${_shorten(query)}'와\n일치하는 검색 결과를 찾지 못했습니다.",
       );
     }
     return ListView.builder(
@@ -241,7 +240,8 @@ class _ResultRow extends StatelessWidget {
           ),
           StarButton(
             active: state.isFavorite(stock.symbol),
-            onTap: () => state.toggleFavorite(stock),
+            onTap: () =>
+                showFavoriteToast(context, state.toggleFavorite(stock)),
           ),
         ],
       ),
