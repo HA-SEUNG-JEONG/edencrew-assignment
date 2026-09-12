@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 시세·검색 조회에 필요. debug 매니페스트에만 있으면 release 빌드에서 네트워크가 막힌다 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="edencrew_assignment_starter"
         android:name="${applicationName}"
