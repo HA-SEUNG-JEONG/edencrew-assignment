@@ -70,6 +70,8 @@ class _DetailScreenState extends State<DetailScreen> {
     return Scaffold(
       body: SafeArea(
         child: ListView.builder(
+          // 마지막 행 아래 여백. 시안의 본문 하단 패딩이다
+          padding: EdgeInsets.only(bottom: context.dimens.space4),
           // 머리 블록 전체가 0번 항목, 그 뒤가 일별 시세 행
           itemCount: _prices.length + 1,
           itemBuilder: (BuildContext context, int index) {
@@ -83,12 +85,12 @@ class _DetailScreenState extends State<DetailScreen> {
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.dimens.space4,
-                    vertical: context.dimens.space5,
+                    vertical: context.dimens.space6,
                   ),
                   // 로딩 중에도 높이를 유지해 아래 요소가 튀지 않게 한다
                   child: _loading
                       ? const SizedBox(
-                          height: 152,
+                          height: 200,
                           child: Center(child: CircularProgressIndicator()),
                         )
                       : CandleChart(prices: _prices),
@@ -117,8 +119,8 @@ class _DetailHeader extends StatelessWidget {
 
     return Container(
       height: 54,
-      // 별 아이콘이 자체 여백을 갖고 있어 우측 패딩은 그만큼 뺀다
-      padding: EdgeInsets.only(right: dimens.space2),
+      // 좌우 아이콘이 모두 자체 여백을 갖고 있어 그만큼 뺀다
+      padding: EdgeInsets.only(left: dimens.space1, right: dimens.space2),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -131,16 +133,24 @@ class _DetailHeader extends StatelessWidget {
         children: <Widget>[
           IconButton(
             onPressed: () => Navigator.pop(context),
+            // 시안의 아이콘 박스는 20 이지만 탭 영역은 44 로 남긴다.
+            // 좌측 패딩 4 + 44 = 48 이 시안의 종목명 시작점과 맞는다
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            style: IconButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             icon: Icon(
               Icons.arrow_back,
               size: dimens.iconMd,
-              color: colors.textPrimary,
+              color: colors.textSecondary,
             ),
           ),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 1,
               children: <Widget>[
                 Text(
                   stock.name,
@@ -167,6 +177,7 @@ class _DetailHeader extends StatelessWidget {
           ),
           StarButton(
             active: state.isFavorite(stock.symbol),
+            size: 22,
             onTap: () =>
                 showFavoriteToast(context, state.toggleFavorite(stock)),
           ),
@@ -190,7 +201,7 @@ class _PriceBlock extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         dimens.space4,
-        dimens.space5,
+        14,
         dimens.space4,
         dimens.space4,
       ),
@@ -204,6 +215,7 @@ class _PriceBlock extends StatelessWidget {
             )
           : Row(
               crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: dimens.space2,
               children: <Widget>[
                 Text(
                   formatNumber(quote.price),
@@ -213,27 +225,16 @@ class _PriceBlock extends StatelessWidget {
                     fontWeight: AppTypography.bold,
                   ),
                 ),
-                SizedBox(width: dimens.space3),
-                // 방향은 화살표가 말해주므로 숫자에는 부호를 붙이지 않는다
-                if (quote.change != 0)
-                  Padding(
-                    padding: EdgeInsets.only(right: dimens.space1),
-                    child: Text(
-                      quote.change > 0 ? '▲' : '▼',
-                      style: TextStyle(
-                        color: priceColor(context, quote.change),
-                        fontSize: 15,
-                        fontWeight: AppTypography.bold,
-                      ),
-                    ),
-                  ),
+                // 시안은 화살표까지 한 덩어리다. 방향은 화살표가 말해주므로
+                // 숫자에는 부호를 붙이지 않는다
                 Text(
+                  '${_arrowOf(quote.change)}'
                   '${formatNumber(quote.change.abs())} '
                   '(${formatRate(quote.changeRate)})',
                   style: TextStyle(
                     color: priceColor(context, quote.change),
                     fontSize: 15,
-                    fontWeight: AppTypography.bold,
+                    fontWeight: AppTypography.medium,
                   ),
                 ),
               ],
@@ -241,6 +242,12 @@ class _PriceBlock extends StatelessWidget {
     );
   }
 }
+
+String _arrowOf(int change) => change > 0
+    ? '\u25b2 '
+    : change < 0
+    ? '\u25bc '
+    : '';
 
 class _SummaryGrid extends StatelessWidget {
   const _SummaryGrid({required this.quote});
@@ -309,7 +316,8 @@ class _SummaryCard extends StatelessWidget {
     return Expanded(
       child: Container(
         height: 55,
-        padding: EdgeInsets.symmetric(horizontal: dimens.space3),
+        // 시안 실측 10. space 토큰에 10 이 없다
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           color: colors.surfaceSunken,
           borderRadius: BorderRadius.circular(dimens.radiusMd),
@@ -321,12 +329,13 @@ class _SummaryCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: colors.textTertiary,
+                color: colors.textSecondary,
                 fontSize: 11,
                 fontWeight: AppTypography.regular,
               ),
             ),
-            SizedBox(height: dimens.space1),
+            // 시안 실측 3. space 토큰에 3 이 없다
+            const SizedBox(height: 3),
             if (value == null)
               const SkeletonBox(width: 72, height: 16)
             else
@@ -365,7 +374,7 @@ class _DailyHeader extends StatelessWidget {
             dimens.space4,
             dimens.space6,
             dimens.space4,
-            dimens.space3,
+            dimens.space1,
           ),
           child: Row(
             children: <Widget>[
@@ -374,7 +383,7 @@ class _DailyHeader extends StatelessWidget {
                 style: TextStyle(
                   color: colors.textPrimary,
                   fontSize: 13,
-                  fontWeight: AppTypography.medium,
+                  fontWeight: AppTypography.bold,
                 ),
               ),
               if (loading) ...<Widget>[
@@ -393,7 +402,9 @@ class _DailyHeader extends StatelessWidget {
         ),
         DailyTableRow(
           cells: const <String>['날짜', '종가', '등락', '거래량'],
-          color: colors.textTertiary,
+          color: colors.textSecondary,
+          // 구분선은 데이터 행 위에만 온다
+          showBorder: false,
         ),
       ],
     );
@@ -424,7 +435,9 @@ class _DailyRow extends StatelessWidget {
   }
 }
 
-// 표 헤더와 본문이 같은 컬럼 폭을 써야 해서 한 위젯으로 둔다
+// 표 헤더와 본문이 같은 규칙으로 컬럼을 나눠야 해서 한 위젯으로 둔다.
+// 날짜 칸은 시안대로 글자 폭을 쓰므로 헤더('날짜')와 본문('09.11')의 폭이
+// 달라 가운데 두 칸의 우측 끝이 약 4 어긋난다 — 시안도 같은 구조다
 class DailyTableRow extends StatelessWidget {
   const DailyTableRow({
     super.key,
@@ -432,14 +445,26 @@ class DailyTableRow extends StatelessWidget {
     required this.color,
     this.closeColor,
     this.changeColor,
+    this.showBorder = true,
   });
-
-  static const List<int> _flex = <int>[3, 3, 4, 4];
 
   final List<String> cells;
   final Color color;
   final Color? closeColor;
   final Color? changeColor;
+  final bool showBorder;
+
+  Widget _cell(int i, Color color, Alignment alignment) => Align(
+    alignment: alignment,
+    child: Text(
+      cells[i],
+      style: TextStyle(
+        color: color,
+        fontSize: 11,
+        fontWeight: AppTypography.regular,
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -457,33 +482,24 @@ class DailyTableRow extends StatelessWidget {
       child: Container(
         height: 32,
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: colors.borderSubtle,
-              width: dimens.borderHairline,
-            ),
-          ),
+          border: showBorder
+              ? Border(
+                  top: BorderSide(
+                    color: colors.borderSubtle,
+                    width: dimens.borderHairline,
+                  ),
+                )
+              : null,
         ),
         child: Row(
+          spacing: dimens.space2,
           children: <Widget>[
+            // 날짜는 글자 폭만 쓰고, 나머지 세 칸이 남은 폭을 균등히 나눈다
             for (int i = 0; i < cells.length; i++)
-              Expanded(
-                flex: _flex[i],
-                child: Align(
-                  // 날짜만 좌측, 나머지는 우측 정렬
-                  alignment: i == 0
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
-                  child: Text(
-                    cells[i],
-                    style: TextStyle(
-                      color: colorsOf[i],
-                      fontSize: 11,
-                      fontWeight: AppTypography.regular,
-                    ),
-                  ),
-                ),
-              ),
+              if (i == 0)
+                _cell(i, colorsOf[i], Alignment.centerLeft)
+              else
+                Expanded(child: _cell(i, colorsOf[i], Alignment.centerRight)),
           ],
         ),
       ),
@@ -505,6 +521,7 @@ class _PeriodTabs extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: dimens.space4),
       child: Row(
+        spacing: dimens.space1,
         children: <Widget>[
           for (final Period period in Period.values)
             Expanded(
@@ -524,10 +541,8 @@ class _PeriodTabs extends StatelessWidget {
                       color: period == selected
                           ? colors.accentDefault
                           : colors.textSecondary,
-                      fontSize: 12,
-                      fontWeight: period == selected
-                          ? AppTypography.medium
-                          : AppTypography.regular,
+                      fontSize: 13,
+                      fontWeight: AppTypography.regular,
                     ),
                   ),
                 ),
