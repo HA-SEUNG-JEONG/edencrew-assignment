@@ -60,17 +60,17 @@ class EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Icon(icon, size: 40, color: colors.textTertiary),
-            SizedBox(height: dimens.space5),
+            SizedBox(height: dimens.space3),
             Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: colors.textSecondary,
-                fontSize: 18,
+                fontSize: 19,
                 fontWeight: AppTypography.bold,
               ),
             ),
-            SizedBox(height: dimens.space4),
+            SizedBox(height: dimens.space3),
             Text(
               description,
               textAlign: TextAlign.center,

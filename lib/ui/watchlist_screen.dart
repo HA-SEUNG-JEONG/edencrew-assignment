@@ -153,6 +153,7 @@ class _WatchRow extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: dimens.space1 / 2,
               children: <Widget>[
                 // 긴 종목명이 가격 컬럼을 밀면 행끼리 세로 정렬이 깨진다
                 Text(
@@ -184,10 +185,10 @@ class _WatchRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: dimens.space1 / 2,
             children: quote == null
                 ? <Widget>[
                     const SkeletonBox(width: 64, height: 16),
-                    SizedBox(height: dimens.space1 / 2),
                     const SkeletonBox(width: 48, height: 12),
                   ]
                 : <Widget>[
@@ -275,7 +276,8 @@ class _SortChip extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: context.colors.surfaceOverlay,
-      // 스크림은 실측값이 Material 기본값과 같아 지정하지 않는다
+      // Material 기본 스크림(black54)은 시안의 검정 50%보다 진해서 직접 지정한다
+      barrierColor: context.colors.surfaceScrim,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -300,19 +302,20 @@ class _SortSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              dimens.space6,
-              dimens.space6,
-              dimens.space6,
-              dimens.space2,
-            ),
-            child: Text(
-              '정렬',
-              style: TextStyle(
-                color: colors.textPrimary,
-                fontSize: 18,
-                fontWeight: AppTypography.bold,
+          SizedBox(
+            height: 64,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: dimens.space6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '정렬',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 19,
+                    fontWeight: AppTypography.bold,
+                  ),
+                ),
               ),
             ),
           ),
@@ -335,14 +338,14 @@ class _SortSheet extends StatelessWidget {
                               ? colors.textPrimary
                               : colors.textSecondary,
                           fontSize: 15,
-                          fontWeight: AppTypography.regular,
+                          fontWeight: AppTypography.medium,
                         ),
                       ),
                       const Spacer(),
                       if (key == state.sortKey)
                         Icon(
                           Icons.check,
-                          size: dimens.iconMd,
+                          size: 24,
                           color: colors.textPrimary,
                         ),
                     ],
@@ -350,7 +353,6 @@ class _SortSheet extends StatelessWidget {
                 ),
               ),
             ),
-          SizedBox(height: dimens.space2),
         ],
       ),
     );

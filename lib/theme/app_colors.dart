@@ -13,6 +13,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.surfaceRaised,
     required this.surfaceSunken,
     required this.surfaceOverlay,
+    required this.surfaceScrim,
     required this.textPrimary,
     required this.textSecondary,
     required this.textTertiary,
@@ -50,6 +51,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surfaceRaised = AppPalette.neutral900,
       surfaceSunken = AppPalette.neutral800,
       surfaceOverlay = AppPalette.neutral700,
+      surfaceScrim = AppPalette.blackAlpha50,
       textPrimary = AppPalette.neutral0,
       textSecondary = AppPalette.neutral200,
       textTertiary = AppPalette.neutral300,
@@ -85,6 +87,9 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color surfaceRaised;
   final Color surfaceSunken;
   final Color surfaceOverlay;
+
+  /// 모달 바텀시트 뒤를 덮는 스크림.
+  final Color surfaceScrim;
 
   /// 텍스트 계층.
   final Color textPrimary;
@@ -141,6 +146,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? surfaceRaised,
     Color? surfaceSunken,
     Color? surfaceOverlay,
+    Color? surfaceScrim,
     Color? textPrimary,
     Color? textSecondary,
     Color? textTertiary,
@@ -176,6 +182,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surfaceRaised: surfaceRaised ?? this.surfaceRaised,
       surfaceSunken: surfaceSunken ?? this.surfaceSunken,
       surfaceOverlay: surfaceOverlay ?? this.surfaceOverlay,
+      surfaceScrim: surfaceScrim ?? this.surfaceScrim,
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       textTertiary: textTertiary ?? this.textTertiary,
@@ -216,6 +223,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surfaceRaised: Color.lerp(surfaceRaised, other.surfaceRaised, t)!,
       surfaceSunken: Color.lerp(surfaceSunken, other.surfaceSunken, t)!,
       surfaceOverlay: Color.lerp(surfaceOverlay, other.surfaceOverlay, t)!,
+      surfaceScrim: Color.lerp(surfaceScrim, other.surfaceScrim, t)!,
       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textTertiary: Color.lerp(textTertiary, other.textTertiary, t)!,
