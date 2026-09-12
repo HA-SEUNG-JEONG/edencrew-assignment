@@ -46,3 +46,6 @@ app.*.map.json
 
 # OMC runtime state
 .omc/
+
+# 시안 대조 수정 기록은 로컬에만 둔다
+docs/fixes/
