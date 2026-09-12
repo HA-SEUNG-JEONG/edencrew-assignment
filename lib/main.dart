@@ -149,18 +149,26 @@ class _NavItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         // 라벨만 남으면 시안 높이(약 31)가 터치 영역에 못 미친다
-        child: ConstrainedBox(
+        child: Container(
           constraints: const BoxConstraints(
             minHeight: kMinInteractiveDimension,
           ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: AppTypography.regular,
+          alignment: Alignment.center,
+          // 비선택 탭도 같은 선을 투명색으로 그어야 라벨 높이가 어긋나지 않는다
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: selected ? colors.navActive : Colors.transparent,
+                width: context.dimens.borderHairline,
               ),
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: AppTypography.regular,
             ),
           ),
         ),
