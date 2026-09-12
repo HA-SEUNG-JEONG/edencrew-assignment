@@ -107,24 +107,19 @@ class _BottomNav extends StatelessWidget {
               thickness: dimens.borderHairline,
               color: colors.borderSubtle,
             ),
-            SizedBox(
-              height: dimens.tabBarHeight,
-              child: Row(
-                children: <Widget>[
-                  _NavItem(
-                    icon: index == 0 ? Icons.star : Icons.star_border,
-                    label: '관심',
-                    selected: index == 0,
-                    onTap: () => onSelect(0),
-                  ),
-                  _NavItem(
-                    icon: Icons.search,
-                    label: '검색',
-                    selected: index == 1,
-                    onTap: () => onSelect(1),
-                  ),
-                ],
-              ),
+            Row(
+              children: <Widget>[
+                _NavItem(
+                  label: '관심',
+                  selected: index == 0,
+                  onTap: () => onSelect(0),
+                ),
+                _NavItem(
+                  label: '검색',
+                  selected: index == 1,
+                  onTap: () => onSelect(1),
+                ),
+              ],
             ),
           ],
         ),
@@ -133,15 +128,14 @@ class _BottomNav extends StatelessWidget {
   }
 }
 
+// 시안의 탭은 아이콘 없이 라벨만 두고 선택 여부를 색 대비로만 나타낸다
 class _NavItem extends StatelessWidget {
   const _NavItem({
-    required this.icon,
     required this.label,
     required this.selected,
     required this.onTap,
   });
 
-  final IconData icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -154,12 +148,13 @@ class _NavItem extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(icon, size: context.dimens.iconMd, color: color),
-            SizedBox(height: context.dimens.space1),
-            Text(
+        // 라벨만 남으면 시안 높이(약 31)가 터치 영역에 못 미친다
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: kMinInteractiveDimension,
+          ),
+          child: Center(
+            child: Text(
               label,
               style: TextStyle(
                 color: color,
@@ -167,7 +162,7 @@ class _NavItem extends StatelessWidget {
                 fontWeight: AppTypography.regular,
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
