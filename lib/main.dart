@@ -112,7 +112,7 @@ class _BottomNav extends StatelessWidget {
               child: Row(
                 children: <Widget>[
                   _NavItem(
-                    icon: Icons.star_border,
+                    icon: index == 0 ? Icons.star : Icons.star_border,
                     label: '관심',
                     selected: index == 0,
                     onTap: () => onSelect(0),

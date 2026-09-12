@@ -18,20 +18,37 @@ class WatchlistScreen extends StatelessWidget {
     return Column(
       children: <Widget>[
         const _Header(),
-        Expanded(
-          child: ListView.builder(
-            // 마지막 행 아래에도 구분선이 있어 separated 대신 행이 직접 그린다
-            itemCount: favorites.length,
-            itemBuilder: (BuildContext context, int index) {
-              final Stock stock = favorites[index];
-              return _WatchRow(
-                stock: stock,
-                quote: state.quoteOf(stock.symbol),
-              );
-            },
-          ),
-        ),
+        // 빈 상태에서도 헤더와 하단 탭은 그대로 유지된다
+        Expanded(child: _body(context, state, favorites)),
       ],
+    );
+  }
+
+  Widget _body(BuildContext context, AppState state, List<Stock> favorites) {
+    if (favorites.isEmpty) {
+      return const EmptyState(
+        icon: Icons.star_border,
+        title: '관심 종목이 없습니다',
+        description: '검색 탭에서 종목을 찾아\n별 아이콘을 눌러 추가해 주세요.',
+      );
+    }
+    // 오래된 시세라도 빈 화면보다 낫다. 보여줄 값이 하나도 없을 때만 전면 에러
+    if (state.blankError) {
+      return EmptyState(
+        icon: Icons.cloud_off,
+        title: '시세를 불러오지 못했습니다',
+        description: '네트워크 상태를 확인하고\n다시 시도해 주세요.',
+        actionLabel: '다시 시도',
+        onAction: state.refreshQuotes,
+      );
+    }
+    return ListView.builder(
+      // 마지막 행 아래에도 구분선이 있어 separated 대신 행이 직접 그린다
+      itemCount: favorites.length,
+      itemBuilder: (BuildContext context, int index) {
+        final Stock stock = favorites[index];
+        return _WatchRow(stock: stock, quote: state.quoteOf(stock.symbol));
+      },
     );
   }
 }
@@ -60,6 +77,8 @@ class _Header extends StatelessWidget {
               ),
             ),
             const Spacer(),
+            const _SortChip(),
+            SizedBox(width: dimens.space3),
             // 재조회 중에는 값을 지우지 않고 이 버튼만 스피너로 바꾼다
             if (state.refreshing)
               SizedBox(
@@ -172,6 +191,124 @@ class _WatchRow extends StatelessWidget {
                     ),
                   ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SortChip extends StatelessWidget {
+  const _SortChip();
+
+  @override
+  Widget build(BuildContext context) {
+    final AppState state = context.appState;
+    final AppColors colors = context.colors;
+
+    return InkWell(
+      onTap: () => _openSortSheet(context, state),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            state.sortKey.label,
+            style: TextStyle(
+              color: colors.textSecondary,
+              fontSize: 13,
+              fontWeight: AppTypography.regular,
+            ),
+          ),
+          SizedBox(width: context.dimens.space1),
+          Icon(
+            Icons.arrow_downward,
+            size: context.dimens.iconSm,
+            color: colors.textSecondary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openSortSheet(BuildContext context, AppState state) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: context.colors.surfaceOverlay,
+      // 스크림은 실측값이 Material 기본값과 같아 지정하지 않는다
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext sheetContext) => _SortSheet(state: state),
+    );
+  }
+}
+
+class _SortSheet extends StatelessWidget {
+  const _SortSheet({required this.state});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppColors colors = context.colors;
+    final AppDimens dimens = context.dimens;
+
+    return SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              dimens.space6,
+              dimens.space6,
+              dimens.space6,
+              dimens.space2,
+            ),
+            child: Text(
+              '정렬',
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontSize: 18,
+                fontWeight: AppTypography.bold,
+              ),
+            ),
+          ),
+          for (final SortKey key in SortKey.values)
+            InkWell(
+              onTap: () {
+                state.setSortKey(key);
+                Navigator.pop(context);
+              },
+              child: SizedBox(
+                height: dimens.rowMinHeight,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: dimens.space6),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        key.label,
+                        style: TextStyle(
+                          color: key == state.sortKey
+                              ? colors.textPrimary
+                              : colors.textSecondary,
+                          fontSize: 15,
+                          fontWeight: AppTypography.regular,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (key == state.sortKey)
+                        Icon(
+                          Icons.check,
+                          size: dimens.iconMd,
+                          color: colors.textPrimary,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          SizedBox(height: dimens.space2),
         ],
       ),
     );
