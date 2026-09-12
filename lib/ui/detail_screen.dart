@@ -148,18 +148,17 @@ class _DetailHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: colors.textPrimary,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: AppTypography.medium,
                   ),
                 ),
-                SizedBox(height: dimens.space1),
                 Text(
                   stock.subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: colors.textTertiary,
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: AppTypography.regular,
                   ),
                 ),
