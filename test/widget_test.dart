@@ -49,6 +49,73 @@ void main() {
     );
   });
 
+  testWidgets('정렬 기준을 바꾸면 목록 순서와 헤더 칩이 함께 바뀐다', (WidgetTester tester) async {
+    // 시세 mock 은 005930(-4.37%) 과 000660(-4.10%) 두 종목만 응답한다.
+    // 나머지 세 종목은 스켈레톤으로 남아 현재가순 / 등락률순 모두 아래로 밀린다
+    await tester.pumpWidget(EdencrewAssignmentApp(repository: mockRepository()));
+    await tester.pumpAndSettle();
+
+    double rowTop(String name) => tester
+        .getTopLeft(
+          find.descendant(
+            of: find.byType(WatchlistScreen),
+            matching: find.text(name),
+          ),
+        )
+        .dy;
+
+    Future<void> pickSort(String from, String to) async {
+      await tester.tap(find.text(from)); // 헤더 칩
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(to)); // 바텀시트 항목
+      await tester.pumpAndSettle();
+    }
+
+    // 기본값 가나다순 — 한글이 먼저, 영문으로 시작하는 종목명은 뒤
+    expect(rowTop('삼성전자'), lessThan(rowTop('카카오')));
+    expect(rowTop('카카오'), lessThan(rowTop('SK하이닉스')));
+
+    await pickSort('가나다순', '현재가순');
+    expect(find.text('현재가순'), findsOneWidget); // 칩 문구가 함께 바뀐다
+    expect(rowTop('SK하이닉스'), lessThan(rowTop('삼성전자'))); // 1,777,000 > 257,250
+    expect(rowTop('삼성전자'), lessThan(rowTop('카카오'))); // 시세 없는 행은 맨 아래
+
+    // 이 mock 은 등락률 순서(-4.10% > -4.37%)가 현재가 순서와 같아 둘을 가르지는
+    // 못한다. 가나다순(삼성전자 우선)과 달라진다는 것까지 확인한다
+    await pickSort('현재가순', '등락률순');
+    expect(find.text('등락률순'), findsOneWidget);
+    expect(rowTop('SK하이닉스'), lessThan(rowTop('삼성전자')));
+    expect(rowTop('삼성전자'), lessThan(rowTop('카카오')));
+  });
+
+  testWidgets('검색어를 지우면 결과 없음 상태에서 초기 상태로 돌아온다', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      EdencrewAssignmentApp(
+        repository: StockRepository(
+          client: MockClient(
+            (http.Request _) async => http.Response('{"items":[]}', 200),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('검색'));
+    await tester.pumpAndSettle();
+    expect(find.text('종목을 검색해 보세요'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'zzz');
+    await tester.pump(const Duration(milliseconds: 350)); // 디바운스
+    await tester.pumpAndSettle();
+    expect(find.text('검색 결과가 없습니다'), findsOneWidget);
+    // 입력한 검색어가 안내 문구에 그대로 들어간다
+    expect(find.textContaining("'zzz'와"), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.close)); // 지우기 버튼
+    await tester.pumpAndSettle();
+    expect(find.text('종목을 검색해 보세요'), findsOneWidget);
+  });
+
   testWidgets('검색에서 등록한 종목이 관심 목록에 나타나고 상세에서 해제하면 함께 사라진다', (
     WidgetTester tester,
   ) async {
