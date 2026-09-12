@@ -154,20 +154,26 @@ class _SearchFieldState extends State<_SearchField> {
     final AppDimens dimens = context.dimens;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: dimens.space4,
-        vertical: dimens.space2,
+      padding: EdgeInsets.fromLTRB(
+        dimens.space4,
+        dimens.space2,
+        dimens.space4,
+        dimens.space3,
       ),
       child: Container(
-        height: 40,
-        padding: EdgeInsets.symmetric(horizontal: dimens.space3),
+        // 높이는 시안 실측 세로 패딩 10이 정한다. 고정 높이를 주지 않는다
+        padding: EdgeInsets.symmetric(horizontal: dimens.space3, vertical: 10),
         decoration: BoxDecoration(
           color: colors.surfaceSunken,
           borderRadius: BorderRadius.circular(dimens.radiusMd),
+          border: Border.all(
+            color: colors.borderStrong,
+            width: dimens.borderHairline,
+          ),
         ),
         child: Row(
           children: <Widget>[
-            Icon(Icons.search, size: dimens.iconMd, color: colors.textTertiary),
+            Icon(Icons.search, size: dimens.iconSm, color: colors.textTertiary),
             SizedBox(width: dimens.space2),
             Expanded(
               child: TextField(
@@ -176,7 +182,7 @@ class _SearchFieldState extends State<_SearchField> {
                 style: TextStyle(
                   color: colors.textPrimary,
                   fontSize: 15,
-                  fontWeight: AppTypography.regular,
+                  fontWeight: AppTypography.medium,
                 ),
                 decoration: InputDecoration(
                   isCollapsed: true,
@@ -205,7 +211,7 @@ class _SearchFieldState extends State<_SearchField> {
               },
               child: Icon(
                 Icons.close,
-                size: dimens.iconMd,
+                size: dimens.iconSm,
                 color: colors.textTertiary,
               ),
             ),
