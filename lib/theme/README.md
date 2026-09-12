@@ -57,6 +57,7 @@ SizedBox(height: context.dimens.space4)
 | `chart/line/flat` | `chartLineFlat` | `neutral/200` | `#B4B2A9` |
 | `chart/area/up` | `chartAreaUp` | `red/alpha-12` | `#FF5B5B` 12% |
 | `chart/area/down` | `chartAreaDown` | `blue/alpha-12` | `#4D9BEE` 12% |
+| `chart/wick` | `chartWick` | `neutral/400` | `#5A5952` |
 | `chart/baseline` | `chartBaseline` | `neutral/400` | `#5A5952` |
 | `chart/axis-label` | `chartAxisLabel` | `neutral/300` | `#888780` |
 | `chart/volume-bar` | `chartVolumeBar` | `neutral/500` | `#3D3D37` |

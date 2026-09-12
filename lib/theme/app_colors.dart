@@ -31,6 +31,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.chartLineFlat,
     required this.chartAreaUp,
     required this.chartAreaDown,
+    required this.chartWick,
     required this.chartBaseline,
     required this.chartAxisLabel,
     required this.chartVolumeBar,
@@ -69,6 +70,7 @@ class AppColors extends ThemeExtension<AppColors> {
       chartLineFlat = AppPalette.neutral200,
       chartAreaUp = AppPalette.redAlpha12,
       chartAreaDown = AppPalette.blueAlpha12,
+      chartWick = AppPalette.neutral400,
       chartBaseline = AppPalette.neutral400,
       chartAxisLabel = AppPalette.neutral300,
       chartVolumeBar = AppPalette.neutral500,
@@ -116,6 +118,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color chartLineFlat;
   final Color chartAreaUp;
   final Color chartAreaDown;
+  final Color chartWick;
   final Color chartBaseline;
   final Color chartAxisLabel;
   final Color chartVolumeBar;
@@ -164,6 +167,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? chartLineFlat,
     Color? chartAreaUp,
     Color? chartAreaDown,
+    Color? chartWick,
     Color? chartBaseline,
     Color? chartAxisLabel,
     Color? chartVolumeBar,
@@ -200,6 +204,7 @@ class AppColors extends ThemeExtension<AppColors> {
       chartLineFlat: chartLineFlat ?? this.chartLineFlat,
       chartAreaUp: chartAreaUp ?? this.chartAreaUp,
       chartAreaDown: chartAreaDown ?? this.chartAreaDown,
+      chartWick: chartWick ?? this.chartWick,
       chartBaseline: chartBaseline ?? this.chartBaseline,
       chartAxisLabel: chartAxisLabel ?? this.chartAxisLabel,
       chartVolumeBar: chartVolumeBar ?? this.chartVolumeBar,
@@ -241,6 +246,7 @@ class AppColors extends ThemeExtension<AppColors> {
       chartLineFlat: Color.lerp(chartLineFlat, other.chartLineFlat, t)!,
       chartAreaUp: Color.lerp(chartAreaUp, other.chartAreaUp, t)!,
       chartAreaDown: Color.lerp(chartAreaDown, other.chartAreaDown, t)!,
+      chartWick: Color.lerp(chartWick, other.chartWick, t)!,
       chartBaseline: Color.lerp(chartBaseline, other.chartBaseline, t)!,
       chartAxisLabel: Color.lerp(chartAxisLabel, other.chartAxisLabel, t)!,
       chartVolumeBar: Color.lerp(chartVolumeBar, other.chartVolumeBar, t)!,

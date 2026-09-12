@@ -18,13 +18,14 @@ class CandleChart extends StatelessWidget {
     final AppColors colors = context.colors;
 
     return SizedBox(
-      height: 152,
+      height: 200,
       child: CustomPaint(
         size: Size.infinite,
         painter: _CandlePainter(
           prices: prices,
           up: colors.chartLineUp,
           down: colors.chartLineDown,
+          wick: colors.chartWick,
         ),
       ),
     );
@@ -32,11 +33,19 @@ class CandleChart extends StatelessWidget {
 }
 
 class _CandlePainter extends CustomPainter {
-  _CandlePainter({required this.prices, required this.up, required this.down});
+  _CandlePainter({
+    required this.prices,
+    required this.up,
+    required this.down,
+    required this.wick,
+  });
 
   final List<DailyPrice> prices;
   final Color up;
   final Color down;
+
+  // 시안의 꼬리는 등락과 무관하게 회색이다
+  final Color wick;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -55,7 +64,8 @@ class _CandlePainter extends CustomPainter {
 
     final double slot = size.width / prices.length;
     // 1년은 250봉이라 몸통이 1px 아래로 내려간다. 최소 1px 로 붙든다
-    final double bodyWidth = max(1, slot * 0.6);
+    final double bodyWidth = max(1, slot * 0.8);
+    final Paint wickPaint = Paint()..color = wick;
 
     for (int i = 0; i < prices.length; i++) {
       final DailyPrice price = prices[prices.length - 1 - i];
@@ -71,7 +81,7 @@ class _CandlePainter extends CustomPainter {
           centerX + 0.5,
           y(price.low),
         ),
-        paint,
+        wickPaint,
       );
       final double top = y(max(price.open, price.close));
       final double bottom = y(min(price.open, price.close));
@@ -91,5 +101,6 @@ class _CandlePainter extends CustomPainter {
   bool shouldRepaint(_CandlePainter oldDelegate) =>
       !identical(oldDelegate.prices, prices) ||
       oldDelegate.up != up ||
-      oldDelegate.down != down;
+      oldDelegate.down != down ||
+      oldDelegate.wick != wick;
 }
