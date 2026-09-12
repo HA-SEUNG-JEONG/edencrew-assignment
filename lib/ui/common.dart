@@ -104,3 +104,57 @@ class EmptyState extends StatelessWidget {
     );
   }
 }
+
+// 관심 등록 버튼. 검색 행과 상세 헤더가 같이 쓴다.
+// 아이콘 오른쪽 여백만큼 부모 행의 우측 패딩을 줄여 시안 위치를 맞춘다
+class StarButton extends StatelessWidget {
+  const StarButton({super.key, required this.active, required this.onTap});
+
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppColors colors = context.colors;
+    final AppDimens dimens = context.dimens;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: dimens.space2,
+          vertical: dimens.space3,
+        ),
+        child: Icon(
+          active ? Icons.star : Icons.star_border,
+          size: 18,
+          color: active ? colors.favoriteActive : colors.favoriteInactive,
+        ),
+      ),
+    );
+  }
+}
+
+// 종목명에서 검색어와 일치하는 구간만 전경색을 바꾼다. 시안에 배경 칠은 없다
+List<TextSpan> highlightSpans(String name, String query, AppColors colors) {
+  final String needle = query.trim().toLowerCase();
+  if (needle.isEmpty) return <TextSpan>[TextSpan(text: name)];
+
+  final String haystack = name.toLowerCase();
+  final List<TextSpan> spans = <TextSpan>[];
+  int cursor = 0;
+  for (int at = haystack.indexOf(needle); at >= 0; ) {
+    if (at > cursor) spans.add(TextSpan(text: name.substring(cursor, at)));
+    spans.add(
+      TextSpan(
+        text: name.substring(at, at + needle.length),
+        style: TextStyle(color: colors.searchHighlight),
+      ),
+    );
+    cursor = at + needle.length;
+    at = haystack.indexOf(needle, cursor);
+  }
+  if (cursor < name.length) spans.add(TextSpan(text: name.substring(cursor)));
+  return spans;
+}
