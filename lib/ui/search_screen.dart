@@ -242,9 +242,14 @@ class _ResultRow extends StatelessWidget {
         ),
       ),
       child: Container(
-        height: 60,
-        // 별 아이콘이 자체 여백을 갖고 있어 우측 패딩은 그만큼 뺀다
-        padding: EdgeInsets.only(left: dimens.space4, right: dimens.space2),
+        // 별 아이콘이 자체 여백을 갖고 있어 우측 패딩은 그만큼 뺀다.
+        // 세로도 마찬가지로 StarButton 자체 여백만큼 줄여야 시안 행 높이 62가 나온다
+        padding: EdgeInsets.fromLTRB(
+          dimens.space4,
+          dimens.space2,
+          dimens.space2,
+          dimens.space2,
+        ),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -257,8 +262,9 @@ class _ResultRow extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: dimens.space1 / 2,
                 children: <Widget>[
                   Text.rich(
                     TextSpan(
@@ -287,6 +293,7 @@ class _ResultRow extends StatelessWidget {
             ),
             StarButton(
               active: state.isFavorite(stock.symbol),
+              size: 22,
               onTap: () =>
                   showFavoriteToast(context, state.toggleFavorite(stock)),
             ),

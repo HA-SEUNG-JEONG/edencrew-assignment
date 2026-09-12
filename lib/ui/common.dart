@@ -108,10 +108,18 @@ class EmptyState extends StatelessWidget {
 // 관심 등록 버튼. 검색 행과 상세 헤더가 같이 쓴다.
 // 아이콘 오른쪽 여백만큼 부모 행의 우측 패딩을 줄여 시안 위치를 맞춘다
 class StarButton extends StatelessWidget {
-  const StarButton({super.key, required this.active, required this.onTap});
+  const StarButton({
+    super.key,
+    required this.active,
+    required this.onTap,
+    this.size = 18,
+  });
 
   final bool active;
   final VoidCallback onTap;
+
+  // 아이콘 크기. 검색 결과 행은 시안 실측 22를 넘긴다
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +136,7 @@ class StarButton extends StatelessWidget {
         ),
         child: Icon(
           active ? Icons.star : Icons.star_border,
-          size: 18,
+          size: size,
           color: active ? colors.favoriteActive : colors.favoriteInactive,
         ),
       ),
