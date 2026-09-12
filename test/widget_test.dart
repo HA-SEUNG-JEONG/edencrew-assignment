@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -5,12 +7,32 @@ import 'package:http/testing.dart';
 
 import 'package:edencrew_assignment_starter/data/stock_repository.dart';
 import 'package:edencrew_assignment_starter/main.dart';
+import 'package:edencrew_assignment_starter/ui/common.dart';
+import 'package:edencrew_assignment_starter/ui/detail_screen.dart';
+import 'package:edencrew_assignment_starter/ui/search_screen.dart';
 import 'package:edencrew_assignment_starter/ui/watchlist_screen.dart';
 
 void main() {
   // 시세 조회가 실패해도 셸은 그려져야 한다
   StockRepository offlineRepository() => StockRepository(
     client: MockClient((http.Request _) async => http.Response('', 404)),
+  );
+
+  // 자동완성과 시세만 응답한다. 시세가 하나도 없으면 관심 화면이 전면 에러로 바뀌어
+  // 목록 변화를 볼 수 없다
+  StockRepository mockRepository() => StockRepository(
+    client: MockClient((http.Request req) async {
+      final String? file = switch (req.url.host) {
+        'ac.stock.naver.com' => 'ac_samsung.json',
+        'polling.finance.naver.com' => 'realtime_batch.json',
+        _ => null,
+      };
+      if (file == null) return http.Response('', 404);
+      return http.Response.bytes(
+        File('assets/mock/$file').readAsBytesSync(),
+        200,
+      );
+    }),
   );
 
   testWidgets('앱이 다크 테마의 하단 탭 셸로 시작한다', (WidgetTester tester) async {
@@ -25,5 +47,94 @@ void main() {
       Theme.of(tester.element(find.byType(Scaffold))).brightness,
       Brightness.dark,
     );
+  });
+
+  testWidgets('검색에서 등록한 종목이 관심 목록에 나타나고 상세에서 해제하면 함께 사라진다', (
+    WidgetTester tester,
+  ) async {
+    // 시드 5종목에 없는 종목이라야 등록·해제가 목록 변화로 드러난다
+    const String subtitle = '009150 · 코스피'; // 삼성전기
+
+    Finder inSearch(Finder finder) =>
+        find.descendant(of: find.byType(SearchScreen), matching: finder);
+    Finder inWatchlist(Finder finder) =>
+        find.descendant(of: find.byType(WatchlistScreen), matching: finder);
+    // IndexedStack 이 두 화면을 모두 살려 두므로 별 버튼도 화면으로 좁혀서 찾는다
+    Finder searchStar() => find.descendant(
+      of: find
+          .ancestor(
+            of: inSearch(find.text(subtitle)),
+            matching: find.byType(InkWell),
+          )
+          .first,
+      matching: find.byType(StarButton),
+    );
+
+    await tester.pumpWidget(
+      EdencrewAssignmentApp(repository: mockRepository()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('검색'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), '삼성');
+    await tester.pump(const Duration(milliseconds: 350)); // 디바운스
+    await tester.pumpAndSettle();
+    expect(inSearch(find.text(subtitle)), findsOneWidget);
+    expect(inWatchlist(find.text(subtitle)), findsNothing);
+
+    // 검색에서 등록
+    await tester.tap(searchStar());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('관심이 등록되었습니다'), findsOneWidget);
+    expect(
+      tester
+          .widget<Icon>(
+            find.descendant(of: searchStar(), matching: find.byType(Icon)),
+          )
+          .icon,
+      Icons.star,
+    );
+    await tester.pumpAndSettle();
+
+    // 관심 탭에 바로 나타난다
+    await tester.tap(find.text('관심').last); // 화면 제목과 겹치지 않는 하단 탭 라벨
+    await tester.pumpAndSettle();
+    expect(inWatchlist(find.text(subtitle)), findsOneWidget);
+
+    // 검색 행에서 상세로 들어가 해제
+    await tester.tap(find.text('검색').last);
+    await tester.pumpAndSettle();
+    await tester.tap(inSearch(find.text(subtitle)));
+    await tester.pumpAndSettle();
+    expect(find.byType(DetailScreen), findsOneWidget);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(DetailScreen),
+        matching: find.byType(StarButton),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('관심이 해제되었습니다'), findsOneWidget);
+    await tester.pumpAndSettle();
+
+    // 뒤로 나오면 검색 행 별과 관심 목록이 함께 풀려 있다
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<Icon>(
+            find.descendant(of: searchStar(), matching: find.byType(Icon)),
+          )
+          .icon,
+      Icons.star_border,
+    );
+    await tester.tap(find.text('관심').last);
+    await tester.pumpAndSettle();
+    expect(inWatchlist(find.text(subtitle)), findsNothing);
   });
 }
