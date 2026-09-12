@@ -23,7 +23,7 @@ abstract final class AppPalette {
   // red — 국내 시장 관행상 상승을 의미합니다.
   static const Color red600 = Color(0xFFD93B44);
   static const Color red500 = Color(0xFFF04452);
-  static const Color red400 = Color(0xFFFF6B5B);
+  static const Color red400 = Color(0xFFFF5B5B);
 
   // blue — 국내 시장 관행상 하락을 의미합니다.
   static const Color blue600 = Color(0xFF2A6FB5);
@@ -38,7 +38,7 @@ abstract final class AppPalette {
   static const Color violet400 = Color(0xFFA594FF);
 
   // alpha-12 — 위 색상의 12% 불투명도 (0.12 * 255 = 31 = 0x1F)
-  static const Color redAlpha12 = Color(0x1FFF6B5B);
+  static const Color redAlpha12 = Color(0x1FFF5B5B);
   static const Color blueAlpha12 = Color(0x1F4D9BEE);
   static const Color violetAlpha12 = Color(0x1F8B7CF6);
 
