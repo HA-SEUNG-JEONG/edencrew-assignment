@@ -167,7 +167,7 @@ class _SearchFieldState extends State<_SearchField> {
         ),
         child: Row(
           children: <Widget>[
-            Icon(Icons.search, size: dimens.iconSm, color: colors.textTertiary),
+            Icon(Icons.search, size: dimens.iconMd, color: colors.textTertiary),
             SizedBox(width: dimens.space2),
             Expanded(
               child: TextField(
@@ -205,7 +205,7 @@ class _SearchFieldState extends State<_SearchField> {
               },
               child: Icon(
                 Icons.close,
-                size: dimens.iconSm,
+                size: dimens.iconMd,
                 color: colors.textTertiary,
               ),
             ),
@@ -271,7 +271,7 @@ class _ResultRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: colors.textTertiary,
+                      color: colors.textSecondary,
                       fontSize: 11,
                       fontWeight: AppTypography.regular,
                     ),

@@ -78,44 +78,44 @@ class _Header extends StatelessWidget {
     final AppColors colors = context.colors;
     final AppDimens dimens = context.dimens;
 
-    return SizedBox(
-      height: dimens.rowMinHeight,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: dimens.space4),
-        child: Row(
-          children: <Widget>[
-            Text(
-              '관심',
-              style: TextStyle(
-                color: colors.textPrimary,
-                fontSize: 18,
-                fontWeight: AppTypography.bold,
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: dimens.space4,
+        vertical: dimens.space3,
+      ),
+      child: Row(
+        children: <Widget>[
+          Text(
+            '관심',
+            style: TextStyle(
+              color: colors.textPrimary,
+              fontSize: 19,
+              fontWeight: AppTypography.bold,
+            ),
+          ),
+          const Spacer(),
+          const _SortChip(),
+          SizedBox(width: dimens.space4),
+          // 재조회 중에는 값을 지우지 않고 이 버튼만 스피너로 바꾼다
+          if (state.refreshing)
+            SizedBox(
+              width: dimens.iconMd,
+              height: dimens.iconMd,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: colors.textSecondary,
+              ),
+            )
+          else
+            InkWell(
+              onTap: state.refreshQuotes,
+              child: Icon(
+                Icons.refresh,
+                size: dimens.iconMd,
+                color: colors.textSecondary,
               ),
             ),
-            const Spacer(),
-            const _SortChip(),
-            SizedBox(width: dimens.space3),
-            // 재조회 중에는 값을 지우지 않고 이 버튼만 스피너로 바꾼다
-            if (state.refreshing)
-              SizedBox(
-                width: dimens.iconSm,
-                height: dimens.iconSm,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: colors.textSecondary,
-                ),
-              )
-            else
-              InkWell(
-                onTap: state.refreshQuotes,
-                child: Icon(
-                  Icons.refresh,
-                  size: dimens.iconSm,
-                  color: colors.textSecondary,
-                ),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -134,8 +134,10 @@ class _WatchRow extends StatelessWidget {
     final Quote? quote = this.quote;
 
     return Container(
-      height: 60,
-      padding: EdgeInsets.symmetric(horizontal: dimens.space4),
+      padding: EdgeInsets.symmetric(
+        horizontal: dimens.space4,
+        vertical: dimens.space3,
+      ),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -148,6 +150,7 @@ class _WatchRow extends StatelessWidget {
         children: <Widget>[
           Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -167,7 +170,7 @@ class _WatchRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: colors.textTertiary,
+                    color: colors.textSecondary,
                     fontSize: 11,
                     fontWeight: AppTypography.regular,
                   ),
@@ -178,6 +181,7 @@ class _WatchRow extends StatelessWidget {
           SizedBox(width: dimens.space3),
           // 종목명과 코드는 시세 없이도 아는 값이라 가격·등락만 스켈레톤으로 둔다
           Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: quote == null
@@ -192,7 +196,7 @@ class _WatchRow extends StatelessWidget {
                       style: TextStyle(
                         color: colors.textPrimary,
                         fontSize: 15,
-                        fontWeight: AppTypography.bold,
+                        fontWeight: AppTypography.medium,
                       ),
                     ),
                     Text(
@@ -242,24 +246,27 @@ class _SortChip extends StatelessWidget {
 
     return InkWell(
       onTap: () => _openSortSheet(context, state),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            state.sortKey.label,
-            style: TextStyle(
-              color: colors.textSecondary,
-              fontSize: 13,
-              fontWeight: AppTypography.regular,
+      // 시안에는 없지만 13pt 한 줄만으로는 탭 영역이 좁다
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: context.dimens.space1),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              state.sortKey.label,
+              style: TextStyle(
+                color: colors.textSecondary,
+                fontSize: 13,
+                fontWeight: AppTypography.bold,
+              ),
             ),
-          ),
-          SizedBox(width: context.dimens.space1),
-          Icon(
-            Icons.arrow_downward,
-            size: context.dimens.iconSm,
-            color: colors.textSecondary,
-          ),
-        ],
+            Icon(
+              Icons.arrow_downward,
+              size: context.dimens.iconMd,
+              color: colors.textSecondary,
+            ),
+          ],
+        ),
       ),
     );
   }
