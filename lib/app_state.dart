@@ -99,7 +99,7 @@ class AppState extends ChangeNotifier {
     final List<Stock> list = List<Stock>.of(_favorites);
     if (_sortKey == SortKey.name) {
       // 이름은 시세 없이도 알고 있어서 전부 정렬된다
-      list.sort((Stock a, Stock b) => a.name.compareTo(b.name));
+      list.sort((Stock a, Stock b) => _nameKey(a.name).compareTo(_nameKey(b.name)));
       return list;
     }
     // 시세 없는 행에 0을 가정하면 하락 종목보다 위로 올라간다. 비교에서 빼고 맨 아래로
@@ -116,6 +116,14 @@ class AppState extends ChangeNotifier {
           : y.changeRate.compareTo(x.changeRate);
     });
     return known..addAll(unknown);
+  }
+
+  // 'LG에너지솔루션'은 코드포인트가 한글보다 작아 그냥 비교하면 가나다순 맨 위로 온다.
+  // 국어사전 관행대로 한글을 앞세우고 영문·숫자를 뒤로 보낸다
+  static String _nameKey(String name) {
+    final int first = name.isEmpty ? 0 : name.codeUnitAt(0);
+    final bool hangul = first >= 0xAC00 && first <= 0xD7A3;
+    return '${hangul ? 0 : 1}$name';
   }
 }
 
