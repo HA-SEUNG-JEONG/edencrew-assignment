@@ -337,3 +337,51 @@ CP949 디코더를 사용했다**([`lib/data/codec/`](lib/data/codec/), 테이�
 
 대조 기록은 [`docs/fixes/`](docs/fixes/)에 남겼다. 두 번째 문서가 첫 번째 문서의 오분류
 (빈 상태를 "시안에 없는 상태"로 분류한 것)를 정정하고 있다.
+---
+
+## 과제 2 (Lucy Studio)
+
+프로젝트는 Lucy Studio `assets/` 폴더를 zip으로 묶어 메일에 첨부했다. 페이지는 `page/targetAlert/`
+아래 `targetAlert.lfp`(목록)와 `targetAlertAddDialog.lfp`(등록 다이얼로그) 두 파일이다. 해상도는
+Studio 프리셋 `iphone12pro`(390×844)라서 과제 1의 393×852와 다르다.
+
+### 구조
+
+- `alerts` 배열 하나가 유일한 상태다. `render()`가 `ListView`를 비우고 배열 순서대로 다시 채운 뒤,
+  `alerts.length === 0`으로 빈 상태 `Column`과 목록의 `visible`을 토글한다. 바인딩을 쓰지 않은
+  이유는, 등록·삭제 두 경로가 모두 같은 함수를 거치게 하려는 것이다.
+- 다이얼로그는 별도 페이지로 두고 `$form.openDialog(..., { barrierDismissible: false })`로 연다.
+  닫는 경로는 `x` 아이콘의 `$form.close(null)`과 등록 성공 시 `$form.close({ name, price, side })`
+  둘뿐이다. 콜백은 `null`이면 아무것도 하지 않는다.
+- 검증 실패(종목명 빈값, 목표가에 숫자 없음)는 토스트로 알리고 해당 입력에 포커스를 되돌린다.
+- 천 단위 쉼표는 `withCommas`를 직접 구현했다. `toLocaleString`은 임베디드 JS에서 로케일이
+  보장되지 않는다.
+
+### 직접 판단한 것
+
+- 목표가 입력은 등록 시점에 `replace(/[^0-9]/g, "")`로 숫자만 남긴다. 붙여넣기를 막지 않기 위해
+  입력 중 필터는 두지 않았다. 앞자리 `0`은 제거한다.
+- `원` 단위는 표기하지 않았다. 시안에 없다.
+- 매도/매수는 `side` 필드로 저장만 한다. **목록에 표시하는 코드는 아직 없다.** 버튼 두 개가
+  `submit("매도")` / `submit("매수")`로 갈라지는 것까지만 구현했다.
+- 선택 항목으로 행 탭 삭제를 넣었다. `onSelected(index)`에서 `splice` 후 `render()`, 토스트로 알린다.
+
+### 색 토큰
+
+`theme/color_themes.json`에 `Assignment` 카테고리로 토큰 12개를 등록했다. 두 페이지가 참조하는 것은
+그중 10개다(`priceUpText`, `feedbackWarning`은 등록만 하고 쓰지 않았다). `component/` 폴더는
+비어 있다. 공통 컴포넌트로 뺄 만큼 반복되는 조각이 없었다.
+
+### 막힌 점
+
+`.lfp` 포맷은 튜토리얼 파일에서 규칙을 역추적해야 했다. 틀리면 Studio 캔버스가 회색으로 멈추거나
+Player가 빈 화면을 보여 줄 뿐 원인을 말해 주지 않는다.
+
+- 헤더 줄 구분자는 공백이 아니라 unit separator(`0x1F`)다.
+- `ListView`는 `children`이 아니라 행 템플릿 하나를 `child`로 받는다.
+- `Flexible` · `Positioned`는 `mount`에 두고 `interior`에는 넣지 않는다.
+- 여백 객체는 `SpaceBox`다. `SizedBox`는 `interior` 전용이다.
+- 아이콘 코드포인트는 Flutter `Icons.*` 값(`add` = 57415)을 써야 한다. Material 웹폰트 값은
+  다른 글리프가 나온다.
+- Player는 디스크를 자동 동기화하지 않는다. Studio에서 페이지마다 다시 보내야 하고, 다이얼로그
+  페이지를 단독으로 보내면 `$form.close`의 결과를 받을 주인이 없어 아무 일도 일어나지 않는다.
