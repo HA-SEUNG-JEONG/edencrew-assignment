@@ -47,5 +47,6 @@ app.*.map.json
 # OMC runtime state
 .omc/
 
-# 시안 대조 수정 기록은 로컬에만 둔다
-docs/fixes/
+# 로컬 전용: 에이전트 지침, 시안 대조용 임시 진입점
+/CLAUDE.md
+/lib/shot.dart
